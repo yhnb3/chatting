@@ -8,10 +8,8 @@ const io = new Server({
 
 io.on("connection", (socket) => {
   socket.emit("newChat", "채팅방에 들어오신것을 환영합니다.");
-
   socket.on("to server", (msg) => {
-    io.broadcast.emit("to client", msg);
-    console.log(msg);
+    io.emit("to client", msg);
   });
 });
 
