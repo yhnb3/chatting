@@ -1,29 +1,35 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
+const socket = io("ws://localhost:3001");
 export default function useChat() {
   const [messages, setMessages] = useState([]);
-  const socket = useRef();
-
+  const [name, setName] = useState("");
   useEffect(() => {
-    socket.current = io("ws://localhost:3001");
-    socket.current.on("newChat", (arg) => console.log(arg));
-    socket.current.on("to client", (arg) => {
-      const newMsg = {
-        ...arg,
-        isMine: arg.senderId === socket.current.id,
-      };
-      setMessages((messages) => [...messages, newMsg]);
+    socket.on("to client", (arg) => {
+      console.log(arg);
+      setMessages((messages) => [...messages, arg]);
     });
-
-    return () => {
-      socket.current.disconnect();
-    };
   }, []);
 
   const sendMessage = (msg) => {
-    socket.current.emit("to server", { msg, senderId: socket.current.id });
+    socket.emit("to server", {
+      message: msg,
+      senderId: socket.id,
+      senderName: name,
+      welcome: false,
+    });
   };
 
-  return { messages, sendMessage };
+  const handleName = (name) => {
+    socket.emit("to server", {
+      message: `${name}님 채팅방에 들어오신것을 환영합니다.`,
+      senderId: socket.id,
+      senderName: name,
+      welcome: true,
+    });
+    setName(name);
+  };
+
+  return { socket, messages, sendMessage, handleName };
 }
