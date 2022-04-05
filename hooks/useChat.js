@@ -22,12 +22,15 @@ export default function useChat() {
   };
 
   const handleName = (name) => {
-    socket.emit("to server", {
-      message: `${name}님 채팅방에 들어오신것을 환영합니다.`,
-      senderId: socket.id,
-      senderName: name,
-      welcome: true,
-    });
+    setMessages((messages) => [
+      ...messages,
+      {
+        message: `${name}님 채팅방에 들어오신것을 환영합니다.`,
+        senderId: socket.id,
+        senderName: name,
+        welcome: true,
+      },
+    ]);
     setName(name);
   };
 
